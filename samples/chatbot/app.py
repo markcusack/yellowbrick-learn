@@ -116,10 +116,14 @@ def query():
 
     qString = data.get('q')
     previousText = data.get('previousText')
-    noLogging = data.get('nologging')
+    noLogging = str2bool(data.get('nologging'))
     resp = queryGPT(qString, previousText, noLogging)
     app.logger.info("response: %s ",resp.json)
     return resp
+
+def str2bool(v):
+    return  not ((v is None) or  (v.lower() in ("no", "False", "false", "0")))
+
 
 
 if __name__ == '__main__':
