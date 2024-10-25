@@ -18,7 +18,7 @@ public class ChatService {
      @Autowired
     private VectorStore vectorStore;
     private final String PROMPT_BLUEPRINT = """
-        Answer the query strictly referring the provided context:
+        Answer the query like Robert Dinero strictly referring the provided context:
         {context}
         Query:
         {query}

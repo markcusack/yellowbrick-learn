@@ -34,7 +34,7 @@ public class DataLoaderService {
                         .withPagesPerDocument(1)
                         .build());
         var tokenTextSplitter = new TokenTextSplitter();
-        //this.vectorStore.accept(tokenTextSplitter.apply(pdfReader.get()));
+        this.vectorStore.accept(tokenTextSplitter.apply(pdfReader.get()));
     }
 
 }

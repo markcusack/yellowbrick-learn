@@ -30,7 +30,7 @@ public class Config {
     }
     @Bean
     YellowBrickVectorStore ybvectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, YbVectorStoreProperties properties, ObjectProvider<ObservationRegistry> observationRegistry, ObjectProvider<VectorStoreObservationConvention> customObservationConvention, BatchingStrategy batchingStrategy) {
-        return new YellowBrickVectorStore(properties.getSchemaName(), properties.getTableName(), jdbcTemplate, embeddingModel, properties.isInitializeSchema(),
+        return new YellowBrickVectorStore( properties.getTableName(), jdbcTemplate, embeddingModel, properties.isInitializeSchema(),
                 (ObservationRegistry) observationRegistry.getIfUnique(() -> {
                     return ObservationRegistry.NOOP;
                 }),
