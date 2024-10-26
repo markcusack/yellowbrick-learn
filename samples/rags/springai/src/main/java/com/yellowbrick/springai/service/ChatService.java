@@ -13,7 +13,9 @@ import java.util.List;
 public class ChatService {
 
     @Autowired
-    @Qualifier("openAiChatModel")
+    //@Qualifier("openAiChatModel")
+    @Qualifier("titanChatModel")
+
     private ChatModel chatClient;
      @Autowired
     private VectorStore vectorStore;
