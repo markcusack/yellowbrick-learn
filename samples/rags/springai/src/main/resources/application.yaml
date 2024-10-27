@@ -1,0 +1,25 @@
+spring:
+  autoconfigure:
+    exclude: org.springframework.ai.autoconfigure.vectorstore.pgvector.PgVectorStoreAutoConfiguration
+  application:
+    name: soringai
+  ai:
+    vectorstore:
+      ybvector:
+        initialize-schema: true
+        max-document-batch-size: 1000
+    bedrock:
+      titan:
+        chat:
+          enabled: true
+        embedding:
+          enabled: true
+          model: amazon.titan-embed-text-v2:0
+          input-type: text
+      aws:
+        region: us-east-1
+        secret-key:
+        access-key:
+
+
+

@@ -1,4 +1,4 @@
-package com.yellowbrick.springai.service;
+package com.example.rag_demo;
 
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -13,19 +13,19 @@ import java.util.List;
 public class ChatService {
 
     @Autowired
-    //@Qualifier("openAiChatModel")
-    @Qualifier("titanChatModel")
+    @Qualifier("openAiChatModel")
 
     private ChatModel chatClient;
-     @Autowired
+    @Autowired
     private VectorStore vectorStore;
-    private final String PROMPT_BLUEPRINT = """
-        Answer the query like Robert Dinero strictly referring the provided context:
-        {context}
-        Query:
-        {query}
+
+    private final String PROMPT_BLUEPRINT = """  
+        Answer the query strictly referring the provided context:      
+        {context}    
+     .  Query:       
+        {query}        
         In case you don't have any answer from the context provided, just say:
-        I'm sorry I don't have the information you are looking for.
+        I'm sorry I don't have the information you are looking for.  
     """;
 
     public String chat(String query) {

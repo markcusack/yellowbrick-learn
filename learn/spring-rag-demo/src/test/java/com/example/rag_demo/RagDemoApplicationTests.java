@@ -1,10 +1,10 @@
-package com.yellowbrick.springai;
+package com.example.rag_demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SpringaiApplicationTests {
+class RagDemoApplicationTests {
 
 	@Test
 	void contextLoads() {
