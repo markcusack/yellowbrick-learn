@@ -189,14 +189,14 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
                 "                FROM" +
                 "                " + getQueryTableName() +" v1 " +
                 "                INNER JOIN" +
-                "               " + getContentTableName() +" v2" +
+                "               " + getTableName() +" v2" +
                 "                ON v1.embedding_id = v2.embedding_id" +
                 "                where v1.doc_id = ?" +
                 "                GROUP BY v2.doc_id" +
                 "                ORDER BY score DESC LIMIT 4" +
                 "        ) v4" +
                 " INNER JOIN" +
-                " " + getTableName()+" v3" +
+                " " + getContentTableName()+" v3" +
                 " ON v4.doc_id = v3.doc_id" +
                 " ORDER BY score DESC";
 
@@ -274,7 +274,7 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
                             "                metadata VARCHAR(1024) NOT NULL,\n" +
                             "                CONSTRAINT %s PRIMARY KEY (doc_id))\n" +
                             "                DISTRIBUTE ON (doc_id) SORT ON (doc_id)"
-                    , this.getTableName(), c));
+                    , this.getContentTableName(), c));
 
             this.jdbcTemplate.execute(String.format("  " +
                             " CREATE TABLE IF NOT EXISTS %s (\n" +
@@ -282,7 +282,7 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
                             " embedding_id SMALLINT NOT NULL,\n" +
                             " embedding FLOAT NOT NULL)\n"
 
-                    , getContentTableName()));
+                    , getTableName()));
 
         }
     }
