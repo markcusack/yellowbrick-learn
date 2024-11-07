@@ -13,8 +13,8 @@ import java.util.List;
 public class ChatService {
 
     @Autowired
-    //@Qualifier("openAiChatModel")
-    @Qualifier("titanChatModel")
+    @Qualifier("openAiChatModel")
+    //@Qualifier("titanChatModel")
 
     private ChatModel chatClient;
      @Autowired
