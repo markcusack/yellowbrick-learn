@@ -20,6 +20,11 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.StatementCreatorUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 
 import java.sql.*;
@@ -36,8 +41,11 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
     private final boolean removeExistingVectorStoreTable;
     private final boolean initializeSchema;
     private final ObjectMapper objectMapper;
+    private final TransactionTemplate transactionTemplate;
 
-    public YellowBrickVectorStore( String vectorTableName, JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, boolean initializeSchema, ObservationRegistry observationRegistry, VectorStoreObservationConvention observationConvention, BatchingStrategy batchingStrategy, int maxDocumentBatchSize) {
+    private Logger log = LoggerFactory.getLogger(YellowBrickVectorStore.class);
+
+    public YellowBrickVectorStore(String vectorTableName, JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, boolean initializeSchema, ObservationRegistry observationRegistry, VectorStoreObservationConvention observationConvention, BatchingStrategy batchingStrategy, int maxDocumentBatchSize, PlatformTransactionManager transactionManager) {
         super(observationRegistry, observationConvention);
         this.jdbcTemplate = jdbcTemplate;
         this.embeddingModel = embeddingModel;
@@ -47,6 +55,7 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
         this.initializeSchema = initializeSchema;
         this.removeExistingVectorStoreTable = true;
         this.objectMapper = new ObjectMapper();
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     /**
@@ -146,14 +155,22 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
         float[] embeddings = this.getQueryEmbedding(request.getQuery());
         UUID searchDocumentId = UUID.randomUUID();
 
-        createTemporaryTable(searchDocumentId, embeddings);
+        List<Document> query = (List<Document>) transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                log.info("doing in transaction");
+                createTemporaryTable(searchDocumentId, embeddings);
 
-        insertSearchDocEmbeddings(searchDocumentId, embeddings);
+                insertSearchDocEmbeddings(searchDocumentId, embeddings);
 
-        List<Document> query = getDocuments(searchDocumentId);
+                List<Document> query = getDocuments(searchDocumentId);
 
-        cleanUpTempTable(searchDocumentId);
+                cleanUpTempTable(searchDocumentId);
+                return query;
+            }
 
+
+        });
         return query;
     }
 
@@ -208,7 +225,7 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
                         null;
                 try {
                     String res = rs.getString(2);
-                    System.err.println(res);
+                    logger.debug(res);
                     result = new ObjectMapper().readValue(rs.getString(2), Map.class);
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
@@ -226,10 +243,11 @@ public class YellowBrickVectorStore extends AbstractObservationVectorStore imple
 
     private void createTemporaryTable(UUID searchDocumentId, float[] embeddings) {
         String tempTableCreate = String.format(
-                " CREATE  TABLE IF NOT EXISTS %s ( \n" +
+                " CREATE TEMPORARY TABLE  %s ( \n" +
                         "     doc_id UUID,\n" +
                         "     embedding_id SMALLINT,\n" +
                         "      embedding FLOAT)\n" +
+                        "  ON COMMIT DROP\n"+
                         "  DISTRIBUTE REPLICATE\n", getQueryTableName());
         jdbcTemplate.execute(tempTableCreate);
 

@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -33,14 +34,14 @@ public class YbVectorStoreAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    YellowBrickVectorStore ybvectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, YbVectorStoreProperties properties, ObjectProvider<ObservationRegistry> observationRegistry, ObjectProvider<VectorStoreObservationConvention> customObservationConvention, BatchingStrategy batchingStrategy) {
+    YellowBrickVectorStore ybvectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, YbVectorStoreProperties properties, ObjectProvider<ObservationRegistry> observationRegistry, ObjectProvider<VectorStoreObservationConvention> customObservationConvention, BatchingStrategy batchingStrategy, PlatformTransactionManager platformTransactionManager) {
         return new YellowBrickVectorStore( properties.getTableName(), jdbcTemplate, embeddingModel, properties.isInitializeSchema(),
                 (ObservationRegistry) observationRegistry.getIfUnique(() -> {
                     return ObservationRegistry.NOOP;
                 }),
                 (VectorStoreObservationConvention) customObservationConvention.getIfAvailable(() -> {
                     return null;
-                }), batchingStrategy, properties.getMaxDocumentBatchSize());
+                }), batchingStrategy, properties.getMaxDocumentBatchSize(),platformTransactionManager);
 
     }
 }
